@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>SalottiLink</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #0d0d0d;
+            color: #b5d8e2f3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            cursor: none;
+        }
+        header, footer {
+            width: 100%;
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(90deg, #1a1a1a, #262626);
+            color: #b5d8e2f3;
+        }
+        nav a {
+            color: #15b8e6f3;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+        nav a:hover { color: #c5c5c5; }
+        .container {
+            max-width: 400px;
+            background: rgba(26, 26, 26, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .container.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        h2 { color: #00ffcc; text-align: center; margin-bottom: 20px; }
+        input, button {
+            width: 100%;
+            padding: 14px;
+            margin: 12px 0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        input {
+            border: 1px solid #00ffcc;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        button {
+            background: linear-gradient(90deg, #00ffcc, #0066ff);
+            color: #0d0d0d;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        button:hover { transform: scale(1.05); }
+        .mensagem { text-align: center; font-weight: bold; margin-top: 15px; }
+        .cursor {
+            position: fixed; width: 20px; height: 20px;
+            border: 2px solid #00ffcc; border-radius: 50%;
+            pointer-events: none; transform: translate(-50%, -50%);
+            transition: transform 0.1s ease-out;
+            z-index: 1000;
+        }
+        .cursor.hover { transform: translate(-50%, -50%) scale(1.5); background-color: rgba(0, 255, 204, 0.2); }
+    </style>
+</head>
+<body>
+    <div class="cursor" id="customCursor"></div>
+    <header>
+        <h1>SalottiLink</h1>
+        <nav>
+            <a href="cadastro.html">Cadastro</a>
+            <a href="login.html">Login</a>
+        </nav>
+    </header>
+
+    <div class="container" id="loginContainer">
+        <h2>Login</h2>
+        <form id="formLogin">
+            <input type="email" id="loginEmail" placeholder="Email" required>
+            <input type="password" id="loginSenha" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+            <p id="mensagemLogin" class="mensagem"></p>
+        </form>
+    </div>
+
+    <footer>© 2025 SalottiLink. Todos os direitos reservados.</footer>
+
+    <script>
+        const apiUrl = 'http://127.0.0.1:5000';
+        const loginContainer = document.getElementById('loginContainer');
+        const cursor = document.getElementById('customCursor');
+
+        document.body.addEventListener('mousemove', () => loginContainer.classList.add('visible'), { once: true });
+        document.addEventListener('mousemove', e => {
+            cursor.style.top = `${e.clientY}px`;
+            cursor.style.left = `${e.clientX}px`;
+        });
+
+        document.querySelectorAll('a, button, input').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
+
+        document.getElementById('formLogin').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const senha = document.getElementById('loginSenha').value;
+            const mensagemLogin = document.getElementById('mensagemLogin');
+
+            try {
+                const response = await fetch(`${apiUrl}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, senha })
+                });
+
+                const data = await response.json();
+                mensagemLogin.textContent = data.mensagem || data.erro;
+                mensagemLogin.style.color = data.mensagem ? '#00ffcc' : '#ff0066';
+
+                if (response.ok) {
+                    window.location.href = 'rede_social.html';
+                }
+            } catch (error) {
+                mensagemLogin.textContent = 'Erro ao conectar com o servidor.';
+                mensagemLogin.style.color = '#ff0066';
+            }
+        });
+    </script>
+</body>
+</html>
